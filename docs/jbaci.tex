@@ -1,0 +1,562 @@
+%Options: KBD=VOID; STD=VOID; LANG=ENGLISH; FMT=LATEXTM; HYPHEN=default;
+\documentclass[11pt]{article}
+\usepackage{url}
+\usepackage{graphicx}
+
+\newcommand{\jb}{\textsc{\sffamily jBACI}}
+\newcommand{\baci}{\textsc{\sffamily BACI}}
+\newcommand{\p}[1]{\texttt{#1}}
+\newcommand{\bu}[1]{\textsf{#1}}
+
+\textwidth=15cm
+\textheight=20cm
+\oddsidemargin=.7\oddsidemargin
+\renewcommand{\baselinestretch}{1.1}
+\setlength{\parskip}{0.20\baselineskip plus 1pt minus 1pt}
+\parindent=0pt
+
+\title{\jb{} Concurrency Simulator\\User's Guide}
+\author{Moti Ben-Ari}
+%\date{}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\thispagestyle{empty}
+\vfil
+\begin{center}
+Copyright (c) 2003-4 by Mordechai (Moti) Ben-Ari.
+\end{center}
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2
+or any later version published by the Free Software Foundation;
+with Invariant Section ``History,'' no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the file \p{fdl.txt}
+included in this archive.
+
+\vfil
+\newpage
+
+\section{History}
+
+Over twenty years ago I developed a concurrency simulator
+for teaching concurrent programming.\footnote{Cheap concurrent programming,
+\emph{Software---Practice and Experience} 11(1981), 1261--1264.}
+The simulator was based upon Niklaus Wirth's Pascal-P interpreter
+and was subsequently published in its entirety in my textbook
+\emph{Principles of Concurrent Programming}
+(Prentice-Hall International, 1982).
+Later, I made many modifications to the simulator,
+in particular, I developed an Integrated Development Environment (IDE)
+based upon the user interface features in Turbo Pascal.
+The software has now become too fragile to maintain
+and the character interface is unattractive to students.
+
+In the intervening years other educators have developed concurrency
+simulators of their own.
+The most comprehensive and widely used is \baci{},
+and I am flattered that it was named after me (Ben-Ari
+Concurrency Interpreter).
+\baci{} (\url{http://www.mines.edu/fs_home/tcamp/baci})
+was developed at William and Mary College by
+Bill Bynum and Tracy Camp.
+While versions of \baci{} exist for several systems,
+a graphical user interface (GUI) exists only for Unix systems.
+Recently, David Strite of Penn State Harrisburg
+developed a new interpreter for the \baci{} virtual code that includes
+a GUI. The interpreter (\url{http://cs.hbg.psu.edu/~null/baci})
+is written in Java and thus portable over all platforms.
+
+\jb{} is an integration of the original \baci{} compilers and
+Strite's interpreter into an IDE that contains an editor,
+together with extensions to the GUI to simplify its use by novices.
+In addition, I have modified the compilers and interpreter
+to include commands for drawing graphics on a canvas;
+this enables the student to write concurrent programs that
+are more fun than character-based programs.
+\jb{} also supports Linda-like synchronization primitives.
+
+\newpage
+
+\section{Installation and execution}
+
+The student distribution is in two \p{zip} files
+called \p{jbaciN.zip} and \p{jbaciNdocs.zip} where \p{N} is a version number.
+The distribution contains
+the executable \p{jar} file and several directories:
+\p{compilers} contains the \p{exe} files of the Pascal
+and C compilers; \p{docs} contains documentation files
+and \p{examples} contains sample programs in both Pascal and C.
+The \p{zip} file \p{jbaciNsrc.zip} contains
+the directory \p{baci} with the Java source code,
+as well as the directory \p{compilers} which contains files for rebuilding
+the compiler to accept the graphics commands.
+
+You must have Java (SDK or JRE) Version 1.4 installed
+in order to run \jb{}.
+Open the distribution \p{jbaciN.zip} into the directory
+\verb=\=\p{jbaci}.
+To run \jb{}, execute \p{java -jar jbaci.jar}.
+You can also create a shortcut to the \p{jar} file and use the icon supplied.
+There are also batch files:
+\p{run.bat} which runs the above command,
+and \p{runp.bat} and \p{runc.bat} which allow a
+source file name without the extension \p{pm} or \p{cm} to be included.
+
+This document describes the operation of the \jb{} IDE
+and the graphics extensions only.
+For documentation of the dialects of Pascal and C that are accepted,
+as well as of the synchronization primitives,
+refer to the original \baci{} documentation which for convenience
+is included in the directory \p{doc}.
+
+Most aspects of the GUI are defined in the file \p{Config.java}
+and can be easily changed.
+Certain options can also be changed by editing the configuration file
+\p{config.cfg}, which is written out when \jb{} is closed.
+Note that the configuration includes in the location of the
+executable compiler files and the default source directory,
+so they must be changed if you do not
+install to the default directory or need to use Unix file syntax.
+
+\newpage
+
+\section{The Integrated Development Environment}
+
+The \jb{} IDE is similar to other IDEs.
+When you run the program you are presented with a menu structure,
+as well as with a toolbar of buttons for common operations.
+Selection of menu entries and buttons using mouse clicks
+(or keyboard mnemonics and shortcuts) will be familiar to a user of GUIs.
+In the following description, button names like \bu{Save}
+will be used even when a menu entry like \bu{File/Save} also exists.
+
+The IDE can be in one of two states: the \emph{edit}
+state and the \emph{run} state.
+\bu{Edit} and \bu{Run} change from one state to the other.
+Buttons and menu entries are enabled and disabled accordingly.
+In both states you can select \bu{File/Exit} and \bu{Help/About}.
+
+\subsection{Editing and compiling}
+
+Figure~\ref{fig.1} shows the \jb{} window
+when you are editing a source file.
+\begin{figure}[hb]
+\begin{center}
+\includegraphics[width=11cm,keepaspectratio=true]{jbaci1.jpg}
+\caption{\jb{} edit mode}\label{fig.1}
+\end{center}
+\end{figure}
+The edit buffer contains the file \p{conway.pm} and the only buttons
+enabled are those relevant to editing and compiling,
+and the \bu{Run} button to change to the \emph{run} state.
+The file and editing operations in the \emph{edit} state are familiar:
+\bu{Open}, \bu{New}, \bu{Save}, \bu{Save as},
+\bu{Copy}, \bu{Cut}, \bu{Paste}, \bu{Find}, \bu{Find again}.
+Files are displayed in a text area and the usual editing keys
+can be used.
+
+Source files must have the extension \p{cm} or \p{pm}
+for C and Pascal, respectively.
+This enables the \bu{Compile} operation to select the correct
+compiler automatically.
+The output of the \baci{} compiler is displayed in a popup frame,
+which can be erased by pressing \bu{Enter}.
+If there are compilation errors, the cursor will then be positioned
+at the beginning of the line with the first error.
+
+\subsection{Running the program}
+
+When a program has been successfully compiled,
+select \bu{Run} to enter the \emph{run} state and
+begin program execution (Figure~\ref{fig.2}).
+\begin{figure}[hb]
+\begin{center}
+\includegraphics[width=11cm,keepaspectratio=true]{jbaci2.jpg}
+\caption{\jb{} run mode}\label{fig.2}
+\end{center}
+\end{figure}
+The only buttons enabled are those relevant to running the program,
+and the \bu{Edit} button to return to the \emph{edit} state.
+
+Selecting \bu{Go} will execute the program normally;
+the execution can be halted by selecting \bu{Pause} and
+restarted from the beginning by reselecting \bu{Run}.
+If \bu{Options/Pause on Process Swap} is selected,
+the execution is automatically halted when a context switch
+between processes is done.
+
+\bu{Step Source} and \bu{Step PCode} enable you to execute a single step
+of the program, either a single step of source code or
+a single step of the PCode.
+A source code step is defined by a single \emph{line} in the source
+code file, regardless of how many language statements appear on the line.
+Writing several statements on a single line enables you to step
+over them quickly when they
+have no algorithmic importance (like initialization statements).
+
+Breakpoints can be set by clicking on a source code
+or PCode line in a process window (see below) and then
+selecting the \bu{Add} button above the display of the code.
+A red dot will appear in front of the line.
+To remove a breakpoint, click on the line and select \bu{Remove}.
+
+\subsection{Displays}
+
+When executing a program the window below the toolbar is divided
+into two areas. The size of the areas can be adjust by dragging
+the dividing bar with the mouse.
+The left area contains the process table and the right area is used
+to display the system windows and the process windows.
+
+\subsubsection{Process table}
+
+The process table contains a line for each process,
+giving the process number and name and the concurrency status,
+for example, if the process is \bu{Active}
+and if it is \bu{Finished}.
+The field \bu{Suspended} is non-empty if the process is
+suspended on a semaphore, a monitor entry or a monitor condition.
+The field \bu{Monitor} will display the monitor name if the
+process has entered a monitor procedure.
+See the \baci{} documentation for the meaning
+of \bu{Priority} and \bu{Atomic}.
+
+The ``next instruction'' to be executed will be
+from the process whose entry is highlighted.
+You can change the highlighted entry by selecting \bu{Next}
+or \bu{Previous}, or by clicking on the process table entry or the process window.
+This will also display that the process window of the highlighted process (if
+it is not already displayed).
+
+\subsubsection{System windows}
+
+There are four system windows:
+\begin{itemize}
+\item The \bu{Console} window displays the output from the program;
+this is in addition to the output from each process which is displayed
+in a pane of the process window.
+\item The \bu{Globals} window displays the values of the global variables.
+In a Pascal program the ``global'' variables are actually
+local to the main program, so the \bu{Globals} window will
+be empty.
+\item The \bu{History} window displays the last 150 source or PCode instructions
+that have been executed.
+(The \bu{History} window is displayed at the bottom right
+of Figure~\ref{fig.2}.)
+\bu{Options/History on Source Step} selects whether an entry will be
+added to the \bu{History} window after each source step or each PCode step;
+if this is selected, the PCode will not appear in the display.
+\item The \bu{Linda} window displays the tuple space.
+\end{itemize}
+You can turn the display of these windows on or off by selecting
+entries in the \bu{Window} menu.
+The system windows displayed by default
+is controlled by flags in the configuration.
+
+\subsubsection{Process windows}
+
+The heart of the display in the \emph{run} state
+is the set of process windows, one for each process.
+A process window consists of three tabbed panes:
+the \bu{Code} pane, the \bu{Console} pane and the \bu{Details} pane.
+The \bu{Console} pane show the output from the process,
+but since the output is also shown on the global \bu{Console} window,
+you may not need to display this pane.
+The \bu{Details} pane shows the contents of the process stack
+as well as the concurrency status of the process.
+However, since the concurrency status of all processes
+is displayed in the process table, the \bu{Details} pane
+is mainly useful if you are tracing the effect of PCode
+operations on the stack.
+
+The \bu{Code} pane is itself divided into three areas:
+the \bu{Source} area, the \bu{PCode} area and \bu{Variables} area.
+The \bu{Source} area shows the source code of the \emph{entire program},
+not just the code of the process.
+A green arrow indicates the next source line to be executed.
+Breakpoints are denoted by red dots,
+and the green arrow is colored red when a breakpoint is reached.
+The \bu{PCode} area displays the PCode for the \emph{current source line}.
+The same indications are used as for the \bu{Source} area.
+The \bu{Variables} area displays the values of the local variables
+of the process.
+The variables are displayed in a tree format,
+so that values of arrays can be expanded or folded.
+
+\subsubsection{Displaying process windows}
+
+The default in \jb{} is to display a process window when
+the instruction being executed has been taken from that process,
+that is, the process window is displayed if it has not been displayed
+before, and brought to the front of the frame if it has.
+You can deselect \bu{Options/Show Active Window},
+in which case, the window for the active process will not be displayed
+or brought to the front.
+
+\subsection{History file}
+
+The history of all source or PCode instructions executed can be written to a file,
+as selected by \bu{Options/Write History File}.
+The file has the extension \p{his} and is re-opened whenever \bu{Run} is selected.
+(Make sure to select \bu{Run} again if you change the option.)
+The file is flushed and closed when the end of the program is reached.
+If you to flush and close a file before termination or for a non-terminating program,
+you must select \bu{Edit} or \bu{File/Exit}, and then save the file before
+running the program again.
+
+\newpage
+
+\section{Language extensions}
+
+\subsection{Graphics}
+
+The portable Java API has been used in \jb{}
+to enable graphics routines to be used in concurrent programs.
+This is useful in order to demonstrate synchronization in a game-like
+environment.
+The graphics facilities have been based on the
+\p{shapes} example from \bu{BlueJ} (\url{http://www.bluej.org}),
+which uses a single hidden
+\p{Canvas} upon which graphics figures are drawn (Figure~\ref{fig.3}).
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=11cm,keepaspectratio=true]{jbaci3.jpg}
+\caption{\jb{} graphics canvas}\label{fig.3}
+\end{center}
+\end{figure}
+
+Each graphics figure is given a \emph{handle} when it is created
+so that subsequent graphics commands can refer to that figure.
+There are five procedures for drawing the figures:
+\begin{itemize}
+\item \p{create(handle, figure, color, x, y, size1, size2)}:
+creates a graphics figure with the specified color,
+location and size.
+\item \p{changecolor(handle, color)}: changes the color of the figure.
+\item \p{makevisible(handle, flag)}: displays or hides the figure
+according to the flag (1 or 0).
+\item \p{moveto(handle, x, y)}: moves the figure to a new position.
+\item \p{moveby(handle, deltax, deltay)}: moves the figure
+relative to its current position.
+\end{itemize}
+All parameters are of type integer.
+The encodings for the figures (circle, line, rectangle, triangle)
+and colors (red, black, blue, yellow, green, magenta, white)
+are given by constants declared
+in the include files \p{gdefs.pm} and \p{gdefs.cm}.
+These files as well as sample programs (\p{graph.pm}, \p{alien.pm},
+\p{graph.cm}) can be found in the directory \p{examples}.
+
+The positions and sizes are in pixels; the top left corner is (0,0)
+and the bottom right corner is (600,450), which can be changed in
+\p{Config.java}.
+The meaning of the location and size parameters for each figure
+is as follows:
+\begin{description}
+\item[Circle] The location is the top left corner of the circumscribed
+square; \p{size1} is the diameter and \p{size2} is ignored.
+\item[Triangle] The location is the top vertex of an isosceles triangle;
+\p{size1} is the height and \p{size2} is the width of the triangle.
+\item[Line] The location pair and size pair are the endpoints of the line.
+\item[Rectangle] The location is the top left corner;
+\p{size1} is the width and \p{size2} is the height of the rectangle.
+\end{description}
+
+\subsection{Non-blocking read}
+
+In \baci{}, input statements are \emph{blocking},
+that is, the entire program blocks waiting for the user to input a value.
+While this is acceptable for entering initial values in the main process,
+it is not representative of concurrent programs,
+where an input statement should not block execution at all,
+or at most, block only the process containing that statement.
+In the example \p{alien.pm},
+input is used to launch blue and green missiles
+against a red alien spaceship
+which moves according to commands within its own process.
+
+In \jb{}, the standard procedure \p{read} blocks the entire simulator,
+while \p{nbread} is \emph{non-blocking},
+that is, an input statement returns immediately after it is called.
+If the user has entered a value, it is returned;
+otherwise, a dummy value is returned (-32767 for integer type
+and \verb+'\r'+ for character type).
+To wait for input in one process without blocking other processes,
+you need to write a loop that calls the input statement
+until a non-flag value is returned.
+You can use the functions \p{getNum} and \p{getChar}
+in the example programs \p{ioint.pm(cm)} and \p{io.pm(cm)},
+respectively.
+
+\subsection{Monitors}
+
+The syntax and semantics of monitors is described in the \baci{} documentation.
+As described there, the conditions queues are not FIFO, but priorities can
+be used to simulate a FIFO queue.
+According to the immediate resumption requirement,
+a signaling process is blocked after unblocking a process waiting on a condition;
+in \jb{}, the interpreter has been modified to assign an artificial
+priority of \p{-1} to a signaling process so that it will be unblocked
+before new processes waiting to enter the monitor.
+
+In Pascal, a monitor \emph{must} be declared global to a Pascal main program;
+the globals window displays the monitor variables:
+\begin{quote}
+\p{monitor pc;}\\
+\ \ \ \p{var \ldots }\\
+\ \ \ \p{procedure Take \ldots }\\
+\ \ \ \p{procedure Append \ldots }\\
+\ \ \ \p{begin \ldots end;}\\
+\p{program ProducerConsumer;}\\
+\ \ \ \p{ \ldots }\\
+\end{quote}
+
+\subsection{Linda}
+
+Linda is a concurrent programming paradigm developed by David Gelernter.
+It is based upon a global \emph{tuple space}: you can read, input and
+output tuples to the tuple space.
+If you try to read or input a formal tuple for which no matching actual tuple exists,
+the process blocks.
+
+The terminology and the operations which are implemented are not standard,
+but are based upon a course developed at the Weizmann Institute of Science.
+The implementation is sufficient to demonstrate interesting examples of
+Linda like load balancing.
+
+The tuple space is defined as a \emph{board},
+upon which you can \emph{post}, \emph{remove} or \emph{read} notes.
+The board is displayed in a separate window as described above.
+
+A \emph{note} consists of a triple:
+a character and two integer values.
+The following operations are available:
+\begin{itemize}
+\item \p{postnote} to post a note on the board.
+\item \p{removenote} and \p{readnote} to remove and read a note from the board.
+The first parameter must be a character \emph{value}, while the two optional parameters
+must be integer \emph{variables}.
+The operations search for an arbitrary note with the character value
+and return the integer values in the variables.
+If there is no matching note, the process blocks until a matching note is posted.
+\end{itemize}
+
+The operations can be called with one, two or three parameters;
+unused integer parameters are given the default value \p{-32767}:
+\begin{quote}
+\p{postnote('a');\ \ \ \ \{ Equivalent to postnote('a', -32767, -32767) \} }\\
+\p{postnote('a', 5); \{ Equivalent to postnote('a', 5, -32767) \ \ \ \ \ \} }\\
+\p{postnote('a', 5, 10);}
+\end{quote}
+
+For historical reasons, there are two syntaxes for matching the values of
+a tuple to the current values of the parameters:
+\begin{itemize}
+\item If the equal sign \p{=} appears after a variable,
+the value of the note in that position must match the current value of that variable.
+For example, the following statements will remove any tuple
+of the form \p{('a',...,5)}:
+\begin{quote}
+\p{i2 := 5; removenote('a',i1,i2=);}
+\end{quote}
+\item \p{removenoteeq} (\p{readnoteeq}) is like \p{removenote} (\p{readnote}),
+but the two parameters values of the note must match the current
+values of both variables.
+For example, the following statements will remove only the tuple \p{('a',1,2)}:
+\begin{quote}
+\p{i1 := 1; i2 := 2; removenoteeq('a',i1,i2);}
+\end{quote}
+\end{itemize}
+Note that \p{removenoteeq('a',i1,i2)} is equivalent to
+\p{removenote('a',i1=,i2=)}.
+
+\newpage
+
+\section{Software structure}
+
+\jb{} is a single Java package \p{baci};
+the main class \p{baci.\-gui.\-Debugger} is specified in the manifest file
+so that the software can be executed directly from the \p{jar} file.
+The subpackages are: \p{event}, \p{exception}, \p{graphics},
+\p{gui}, \p{gui.\-actionbuttons},
+\p{gui.\-treetable}, \p{interpreter}, \p{program}.
+Most of my modifications to Strite's code
+were to the GUI code in \p{gui},
+including the addition of the class \p{Editor},
+based in part on code by Michael Gratton.
+The addition of the graphics facility led to the new
+subpackage \p{graphics},
+as well as to the addition of classes
+in \p{program} for the new graphics instructions.
+
+To rebuild the IDE and interpreter, simply execute \p{build.bat}
+from the \verb=\=\p{jbaci}\verb=\=\p{baci} directory.
+
+To rebuild the compilers, first copy the
+files from the subdirectories of \verb=\=\p{jbaci}\verb=\=\p{compilers}
+into the equivalent \baci{} subdirectories.
+I do not have a Unix system at my disposal,
+so the current distribution includes compilers for Windows only.
+They were created using the MinGW software (\url{http://www.mingw.org});
+batch files for building them can be found in the \p{compilers} directory.
+
+\newpage
+
+\section{Release notes}
+
+\begin{description}
+\item[1.4.5] Alternate syntax for Linda formal parameters.
+\item[1.4.4] Fix bugs in display of monitor variables and in display of
+process table when using monitors.
+Signaling processes are given priority at monitor exit.
+\item[1.4.3] Fix bug: when writing uninitialized variable,
+a message is printed instead of throwing an uncaught exception.
+There are now separate commands \p{read}/\p{cin} for blocking read
+and \p{nbread}/\p{nbcin} for non-blocking read.
+User-interface changes: accelerators are defined for all keys in the first three menus;
+the \bu{Display} button has been removed.
+\item[1.4.2] Fix bug: postnote in Linda was waking only one blocked process.
+\item[1.4.1] Editor changed: it is no longer a separate frame; line numbers
+appear to the left of the text area; if you modify the file,
+an asterisk is displayed in the title border.
+Font changed to Java standard Lucida.
+Font sizes for source, PCode and tables can be changed from
+the configuration file.
+The location of the non-blocking input option pane can be set in the configuration file.
+\item[1.4.0] Linda primitives implemented within the compilers and interpreter.
+\item[1.3.4] Read in main program is blocking for normal I/O.
+PCode is not shown by default in process window---you have to click the divider.
+Windows are tiled, not cascaded; locations and sizes of windows
+can be set in configuration file.
+A history file can be written as selected by a configuration file option.
+History display and file does not display PCode if history of source steps selected.
+\item[1.3.3] Bugs fixed: exception in display of suspend on condition in monitor,
+exception if file name contains the substring ``line'',
+mistaken ``cross monitor call'' in the Pascal compiler and the interpreter,
+array assignment did not work in Pascal.
+Modifications: Pascal compiler allows implicit cast between \p{integer} and \p{char};
+C compiler allows explicit casts \p{int(c)} and \p{char(i)}.
+Additions: Linda tuple space implemented as \baci{} source modules.
+\item[1.3.2] Bugs fixed: cannot select window of main process,
+run without compile caused exception.
+For Pascal programs, Globals windows (redundantly) shows the
+variables of main program.
+History window shows source code lines and an option has been added to select
+whether to update the window after each source or PCode step.
+Default file extensions remain \p{pm} and \p{cm}, but other extensions are allowed.
+Non-blocking read.
+Compatibility with previous simulator: \p{parbegin/parend} in addition to
+\p{cobegin/coend}; \p{process} in addition to \p{procedure}; \p{init(1)} syntax
+for semaphore initialization in Pascal.
+\item[1.3.1] Pascal compiler modifications applied to version which
+enables Boolean initializers and nested procedures.
+\item[1.3] Configuration file is now a Java properties file;
+clicking on process table entry or process window selects current process.
+\item[1.2] Initial public release.
+\end{description}
+
+\end{document}
+
