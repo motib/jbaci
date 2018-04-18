@@ -1,0 +1,198 @@
+/*
+	BACI implementation of a Linda Tuple Space - V1.0 (Pascal).
+	Author: Moti Ben-Ari, 2003.
+	Tuples are called notes and the tuple space is called the board.
+	See jBACI.pdf for more information.
+
+	******** Superseded by implementation of Linda within jBACI!!! *************
+
+*/	
+
+const	int	num    = 5;		/* Maximum number of notes on board */ 
+const	int	procs  = 4;		/* Maximum number of processes */
+const	int	formal = -32767;	/* Indicator of empty or formal parameter */
+	
+typedef	int	note[3];		/* Type of a note - three fields */
+
+	note	board[num];		/* The board of notes */
+	int	waiting[procs];		/* Flags for processes waiting for notes */ 
+
+/*
+	Utilities
+		writenote, writespace
+		assign (because array assignment doesn't work in back)
+		maketuple from three values
+		findempty place on the board
+		initboard to empty board and no waiting processes
+*/		
+
+void writenote(note& t) {
+	char c;
+  if (t[0] == formal) cout << "(empty)"; 
+  else {
+    c = char(t[0]); 
+    cout << c << ' ';
+    if (t[1] != formal) cout << t[1] << ' ';
+    if (t[2] != formal) cout << t[2] << ' ';
+  }
+  cout << '\n';
+}
+
+void writeboard() {
+	int i;
+  cout << "Board is \n";
+  for (i = 0; i < num; i++) 
+    writenote(board[i]);
+}
+
+void assign(note& t1, note& t2) {
+	int j;
+  for (j = 0; j < 3; j++) t1[j] = t2[j];
+}
+
+void makenote(note& t, char c, int i1, int i2) {
+	int i0;
+  i0 = int(c); t[0] = i0; t[1] = i1; t[2] = i2;
+}
+
+int findempty() {
+	int i;
+  i = 0; 
+  while ((i < num) && !(board[i][0] == formal)) i++; 
+  return i;
+}
+
+void initboard() {
+	int i;
+  for (i = 0; i < num; i++) board[i][0] = formal;
+  for (i = 0; i < procs; i++) waiting[i] = 0;
+}
+
+/*
+	Post - output a note, reviving any suspended processes.
+	Interfaces: postnote, postnote1, postnote2.
+*/	
+atomic void post(note& t) {
+	int i;
+  i = findempty();
+  if (i == num) cout << "No more room for notes on board\n";
+  else {
+  	assign(board[i], t);
+	for (i = 0; i < procs; i++)
+		if (waiting[i]) { revive(i); waiting[i] = 0; }
+	}
+}
+
+void postnote(char c) {
+	note t;
+  makenote(t, c, formal, formal); post(t);
+}
+  
+void postnote1(char c, int i1) {
+	note t;
+  makenote(t, c, i1, formal); post(t);
+}
+  
+void postnote2(char c, int i1, int i2) {
+	note t;
+  makenote(t, c, i1, i2); post(t);
+}
+  
+/*
+	Read and input a note
+		searchnote - the value formal matches anything
+		getnote - call searchnote and return values, removing note for input
+		readremove - call getnote and suspend if no note available
+	Interfaces to read/remove a note with arbitrary parameters: 
+		removenote, removenote1, removenote2, readnote, readnote1, readnote2
+	Interfaces to read/remove a note that matches parameters (the formal value matches anything):
+		removenote1eq, removenote2eq, readnote1eq, readnote2eq
+*/
+int searchnote(note& t) {
+	int i; 
+	int found;
+  i = 0; found = 0;
+  while (!found && (i < num)) {
+    if (board[i][0] == formal) found = 0;
+    else found =
+          (t[0] == board[i][0]) &&
+          ((t[1] == formal) || (board[i][1] == formal) || (t[1] == board[i][1])) &&
+          ((t[2] == formal) || (board[i][2] == formal) || (t[2] == board[i][2]));
+     if (!found) i++;
+     }
+  return i;
+}
+
+atomic int getnote(note& t, int remove) {
+	int i;
+  i = searchnote(t);
+  if (i < num) { 
+  	assign(t, board[i]); 
+	if (remove) board[i][0] = formal; 
+  }
+  return i < num;
+}
+
+void readremove(note& t, int remove) {
+	int success;
+	int w;
+  do {
+    success = getnote(t, remove);
+    if (!success) { 
+    	waiting[which_proc()] = 1; 
+	suspend(); 
+    }
+  }
+  while (!success);
+}
+
+void removenote(char c) {
+	note t;
+  makenote(t, c, formal, formal); readremove(t, 1);
+}
+
+void removenote1(char c, int& i1) {
+	note t;
+  makenote(t, c, formal, formal); readremove(t, 1); i1 = t[1];
+}
+
+void removenote2(char c, int& i1, int& i2) {
+	note t;
+  makenote(t, c, formal, formal ); readremove(t, 1); i1 = t[1];   i2 = t[2];
+}
+
+void readnote(char c) {
+	note t;
+  makenote(t, c, formal, formal); readremove(t, 0);
+}
+
+void readnote1(char c, int& i1) {
+	note t;
+  makenote(t, c, formal, formal); readremove(t, 0); i1 = t[1];
+}
+
+void readnote2(char c, int& i1, int& i2) {
+	note t;
+  makenote(t, c, formal, formal); readremove(t, 0); i1 = t[1];   i2 = t[2];
+}
+
+void removenote1eq(char c, int& i1) {
+	note t;
+  makenote(t, c, i1, formal); readremove(t, 1); i1 = t[1];
+}
+
+void removenote2eq(char c, int& i1, int& i2) {
+	note t;
+  makenote(t, c, i1, i2); readremove(t, 1); i1 = t[1]; i2 = t[2];
+}
+
+void readnote1eq(char c, int& i1) {
+	note t;
+  makenote(t, c, i1, formal); readremove(t, 0); i1 = t[1];
+}
+
+void readnote2eq(char c, int& i1, int& i2) {
+	note t;
+  makenote(t, c, i1, i2); readremove(t, 0);  i1 = t[1];   i2 = t[2];
+}
+

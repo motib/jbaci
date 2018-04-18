@@ -1,0 +1,25 @@
+void p1() {
+	int i1, i2; 
+  postnote('x', 11, 22);
+/*
+  i1 = 111; i2 = 222;
+  readnote('x', i1, i2);
+  cout << i1 << ' ' << i2 << '\n';
+
+  i1 = 111; i2 = 222;
+  readnote('x', i1=, i2=);
+  cout << i1 << ' ' << i2 << '\n';
+
+  i1 = 111; i2 = 22;
+  readnote('x', i1=, i2);  
+  cout << i1 << ' ' << i2 << '\n';
+*/
+  i1 = 111; i2 = 22;
+  readnote('x', i1, i2=);  
+  cout << i1 << ' ' << i2 << '\n';
+}
+
+void main() {
+  cobegin { p1(); }
+}
+

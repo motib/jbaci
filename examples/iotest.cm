@@ -1,0 +1,34 @@
+/*
+	Test non-blocking read.
+	Input initial values in main program.
+	Print out initial values until new character and integer values are input.
+	Then print the new values indefinitely.
+*/	
+
+#include "iodefs.cm"
+
+char c;
+int n;
+
+void input() {
+  c = getChar();
+  n = getNum();
+}
+
+void output() {
+  while (1) {
+    cout << c << n << '\n';
+  }
+}
+
+void main() {
+  cout << "Enter initial character value\n";
+  cin >> c;
+  cout << "Enter initial integer value\n";
+  cin >> n;
+  cout << "Initial values are: " << c << "  " << n << '\n';
+  cobegin {
+    input();
+    output();
+  }
+}

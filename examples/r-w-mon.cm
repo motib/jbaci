@@ -1,0 +1,63 @@
+monitor RW {
+	int readercount;
+	int busy;
+	condition OKtoRead, OKtoWrite;
+
+void StartRead() {
+	if (busy || !empty(OKtoWrite))
+		waitc(OKtoRead);
+	readercount = readercount + 1;
+	cout << "Reader count is " << readercount << '\n';
+	signalc(OKtoRead);
+}
+
+void EndRead() {
+	readercount = readercount - 1;
+	if (readercount == 0) 
+		signalc(OKtoWrite);
+}
+
+void StartWrite() {
+	if (busy || (readercount != 0))
+		waitc(OKtoWrite);
+	busy = 1;
+}
+
+void EndWrite() {
+	busy = 0;
+	if (empty(OKtoRead))
+		signalc(OKtoWrite);
+	else
+		signalc(OKtoRead);
+}
+
+init {
+	readercount = 0; busy = 0;
+}
+}
+
+void Reader(int N) {
+	int I;
+	for (I = 1; I < 2; I++) {
+		StartRead();
+		cout << N << " is reading" << '\n';
+		EndRead();
+	}
+}
+
+void Writer(int N) {
+	int I;
+	for (I = 1; I < 2; I++) {
+		StartWrite();
+		cout << N << " is writing" << '\n';
+		EndWrite();
+	}
+}
+
+void main() {
+	cobegin {
+		Reader(1); Reader(2); Reader(3);
+		Writer(1); Writer(2);
+	}
+}
+

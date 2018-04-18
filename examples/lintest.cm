@@ -1,0 +1,87 @@
+/* Test of Linda primitives */
+/* Follow numbered instructions carefully! */
+
+void p1() {
+	char c; 
+	int i1, i2; 
+  /* 1. Step process p1 until **** */
+
+  /* Check post-, read- and remove-note */
+  postnote('m', 10, 20);
+  readnote('m', i1, i2);
+  cout << i1 << ' ' << i2 << '\n';
+  removenote('m', i1, i2);
+  cout << i1 << ' ' << i2 << '\n';
+
+  /* Check different size notes */
+  postnote('a');
+  readnote('a');
+  readnote('a', i1, i2);  /* OK, parameters are not counted */
+  cout << i1 << ' ' << i2 << '\n';
+  removenote('a');
+  postnote('b', 7);
+  removenote('b', i1);
+  cout << i1;
+  
+  /* Check values vs. variables */
+  
+  postnote('c', 1, 2);
+  c = 'd'; i1 = 8; i2 = 9;
+  postnote(c, i1, i2);
+  readnote('c', i1, i2);
+  cout << i1 << ' ' << i2 << '\n';
+  readnote(c, i1, i2);
+  cout << i1 << ' ' << i2 << '\n';
+  removenote('c', i1, i2);
+  cout << i1 << ' ' << i2 << '\n';
+  removenote(c, i1, i2);
+  cout << i1 << ' ' << i2 << '\n';
+  
+  /* Check blocking/unblocking */
+  
+  readnote('a', i1, i2);  /* **** */
+
+  /* 5. Step p1 until ++++ */
+  cout << i1 << ' ' << i2 << '\n';
+  removenote('a', i1, i2);
+  removenote('b', i1, i2);
+
+  /* Check read/remove with EQ */
+
+  postnote('x', 11, 22);
+  postnote('y', 33, 44);
+  i1 = 111; i2 = 222;
+  readnoteeq('x', i1, i2); /* ++++ */
+
+  /* 7. Step p1 until ==== */
+  cout << i1 << ' ' << i2 << '\n';
+  removenoteeq('x', i1, i2);  
+  cout << i1 << ' ' << i2 << '\n';
+  removenote('x', i1, i2);
+
+  i1 = 333; i2 = 444;
+  removenoteeq('y', i1, i2); /* ==== */
+  cout << i1 << ' ' << i2 << '\n';
+  removenote('y', i1, i2);
+}
+
+void p2() {
+  /* 2. Step this instruction after p1 blocks */ 
+  postnote('b', 55, 66);
+  
+  /* 3. Step p1 again to make sure that it blocks again */
+  
+  /* 4. Step this instruction to unblock p1 */
+  postnote('a', 77, 88);
+  
+  /* 6. Step this instruction after p1 blocks */
+  postnote('x', 111, 222);
+
+  /* 8. Step this instruction to unblock p1 */
+  postnote('y', 333, 444);
+}
+
+void main() {
+  cobegin { p1(); p2(); }
+}
+

@@ -1,0 +1,17 @@
+// Function for non-blocking input of character value
+const	char cflag = '\r';
+char getChar() {
+	char d = cflag; 
+	while (d == cflag) nbcin >> d;
+	return d;
+}
+
+// Function for non-blocking input of integer value
+const int iflag = -32767;
+int getNum() {
+	int i = iflag;
+	while (i == iflag) nbcin >> i;
+	return i;
+}
+
+

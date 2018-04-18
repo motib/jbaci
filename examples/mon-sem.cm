@@ -1,0 +1,36 @@
+/* Monitor implementation of semaphore. */
+monitor monSemaphore {
+	int semvalue;
+	condition notbusy;
+
+	void monP() {
+	if (!semvalue)
+		waitc(notbusy);
+	else
+		semvalue--;
+		}
+		
+	void monV() {
+		if (empty(notbusy))
+			semvalue++;
+		else
+			signalc(notbusy);
+	}
+	
+	init{ semvalue = 1; } 
+} // end of monSemaphore monitor
+
+int n;
+
+void inc(int i) {
+  monP();
+  n = n + 1;
+  monV();
+}
+
+void main() {
+  cobegin {
+  inc(1); inc(2);
+  }
+}
+

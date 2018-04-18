@@ -1,0 +1,44 @@
+/*
+ Concurrent input and calculation of grades. 
+ Program needs synchronization for both critical section and order of execution. 
+ From a Pascal program written by Yifat Ben-David Kolikant.
+*/
+int GradeA, GradeB, Final;
+
+int Max(int X, int Y, int Z) {
+  if ((X>Y) && (X>Z)) return X;
+  else if ((Z>Y) && (Z>X)) return Z;
+  else return Y;
+}
+
+void First() {
+  int A, B, C;
+  cout << "Enter grade of first semester:\n";
+  cin >> A;
+  cin >> B;
+  cin >> C;
+  GradeA = Max(A, B, C);
+  cout << "The grades were: " << A << ' ' << B << ' ' << C << '\n';
+}
+
+void Second() {
+  int D, E, F;
+  cout << "Enter grade of second semester:\n";
+  cin >> D;
+  cin >> E;
+  cin >> F;
+  GradeB = Max(D, E, F);
+  cout << "The grades were: " << D << ' ' << E << ' ' << F << '\n';
+}
+
+void Average() {
+  Final = (GradeA + GradeB) / 2;
+  cout << "The final grade is :" << Final << '\n';
+}
+
+void main() {
+  parbegin {
+    First(); Second(); Average();
+  }
+}
+

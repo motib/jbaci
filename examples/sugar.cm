@@ -1,0 +1,21 @@
+int sugar = 0;
+binarysem s = 1;
+
+void Kid(int k) {
+  wait(s);
+  if (sugar < 1) {
+      cout << "Kid " << k << " is getting a cube" << "\n";
+      sugar = sugar + 1;
+  }
+  signal(s);
+}
+
+void main() {
+  cobegin
+ {
+    Kid(1);
+    Kid(2);
+  }
+  cout << "Total cubes is: " << sugar << "\n";
+}
+

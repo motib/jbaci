@@ -1,0 +1,23 @@
+/*
+ Add 10 to a variable in each of two processes.
+ The answer can be between 2 and 20.
+ Local variable enables bad scenario with source-level interleaving.
+*/
+int sum = 0;
+
+void add10() {
+	int i;
+	int local;
+	for (i = 1; i <= 10;i++) {
+		local = sum;
+		sum = local + 1;
+	}
+}
+
+void main() {
+	cobegin { 
+		add10(); 
+                add10();
+        }
+        cout << "Sum = " << sum << endl;
+}

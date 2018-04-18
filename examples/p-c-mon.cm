@@ -1,0 +1,58 @@
+monitor PC {
+	const int N = 5;
+	int Oldest;
+	int Newest;
+	int Count;
+	condition NotEmpty;
+	condition NotFull;
+	int Buffer[N];
+
+void Append(int V) {
+	if (Count == N) 
+		waitc(NotFull);
+	Buffer[Newest] = V;
+	Newest = (Newest + 1) % N;
+	Count = Count + 1;
+	signalc(NotEmpty);
+}
+
+int Take() {
+	int temp;
+	if (Count == 0) 
+		waitc(NotEmpty);
+	temp = Buffer[Oldest];
+	Oldest = (Oldest + 1) % N;
+	Count = Count - 1;
+	signalc(NotFull);
+	return temp;
+}
+
+init {
+	Count = 0; Oldest = 0; Newest = 0;
+}
+
+}
+
+const	int Values = 20;
+
+void Producer(int ID) {
+	int I;
+	for (I = 1; I < Values; I++) {
+		cout << "Producer " << ID << " producing " << ID*100+I << '\n';
+		Append(ID*100+I);
+	}
+}
+
+void Consumer(int ID) {
+	int I, J;
+	for (I = 1; I < Values; I++) {
+		J = Take();
+		cout << "Consumer " << ID << " consuming " << J << '\n';
+	}
+}
+
+void main() {
+	cobegin {
+		Producer(1); Consumer(1); //Consumer(2); Consumer(3);
+	}
+}

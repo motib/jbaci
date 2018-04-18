@@ -1,0 +1,38 @@
+// Demonstate jBACI graphics; fragment of alien program.
+#include "gdefs.cm"
+const
+	int ALIENHEAD = 1;	int ALIENBODY = 2;
+	int MISSILEHEAD = 3; 	int MISSILEBODY = 4;
+
+        binarysem s = 1;
+
+	void MoveAlien() {
+		int i;
+		for (i = 1; i < 40; i++) {
+			wait(s);
+			moveby(ALIENHEAD, 10, 0);
+			moveby(ALIENBODY, 10, 0);
+			signal(s);
+		}
+	}
+
+	void Shoot() {
+		int i;
+		for (i = 1; i < 40; i++) {
+			wait(s);
+			moveby(MISSILEHEAD, 0, -11);
+			moveby(MISSILEBODY, 0, -11);
+			signal(s); 
+		}
+	}
+
+void main() {
+	create(ALIENBODY,   RECTANGLE, RED,   30, 50,  30, 30);
+	create(ALIENHEAD,   CIRCLE,    RED,   60, 50,  30, 30);
+	create(MISSILEBODY, RECTANGLE, BLUE, 400, 400, 30, 50);
+	create(MISSILEHEAD, TRIANGLE,  BLUE, 415, 370, 30, 30);
+	cobegin {
+		Shoot();
+		MoveAlien();
+	}
+}

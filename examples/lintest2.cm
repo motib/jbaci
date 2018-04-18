@@ -1,0 +1,56 @@
+/* Test of Linda primitives - actual vs. formal parameters */
+/* Follow instructions carefully! */
+/* Start by stepping p1 */
+/* Comments describe observable results */
+
+void p1() {
+	char c; 
+	int i1, i2; 
+   postnote('x', 1, 2);		/* Posts note */
+
+  i1 = 5; i2 = 6;
+  readnote('x', i1, i2);
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 1 2 */
+  i1 = 1; i2 = 2;
+  readnote('x', i1=, i2=);	/* First syntax */
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 1 2 */
+  i1 = 1; i2 = 2;
+  readnoteeq('x', i1, i2);	/* Second syntax */
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 1 2 */
+
+  i1 = 3; i2 = 4;
+  readnote('x', i1=, i2=);	/* First syntax */
+				/* Blocks - run a step from p2 */
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 3 4 */
+  i1 = 5; i2 = 6;
+  readnoteeq('x', i1, i2);	/* Second syntax */
+				/* Blocks - run a step from p2 */
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 5 6 */
+  
+  i1 = 3; i2 = 5;
+  removenote('x', i1=, i2);	/* Removes node ('x',3,4) */
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 3 4 */
+
+  i1 = 7; i2 = 6;
+  removenote('x', i1, i2=);	/* Removes node ('x',5,6) */
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 5 6 */
+
+  i1 = 2; i2 = 2;
+  removenote('x', i1=, i2);
+				/* Blocks - run a step from p2 */
+  cout << i1 << ' ' << i2 << '\n';		/* Prints 2 6 */
+}
+
+void p2 () {
+  postnote('x', 3, 4);		/* Posts note */
+  /* Run a step from p1 */
+  postnote('x', 5, 6);		/* Posts note */
+  /* Run a step from p1 */
+  postnote('x', 2, 6);		/* Posts note */
+  /* Run a step from p1 */
+}
+
+void main() {
+  cobegin { p1(); p2(); }
+}
+
