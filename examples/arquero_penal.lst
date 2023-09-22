@@ -1,0 +1,36 @@
+BACI System: C-- to PCODE Compiler, 12:29  18 Jul 2004
+Source file: D:\Proyectos\jbaci\jbaci\examples\arquero_penal.cm  Fri Sep 22 10:52:09 2023
+ line  pc
+   1    0  semaphore Arquero = 0;
+   2    0  semaphore Jugador = 1;
+   3    0  
+   4    0  
+   5    0  void jugador(int ID){
+   6    0  	wait(Jugador);
+   7    2  	cout<<"Jugador " << ID << " ejecita el penal" << endl;
+   8    7  	signal(Arquero);
+   9    9  ;
+  10    9  }
+  11   10  
+  12   10  void arquero(int ID){
+  13   10  	int i;
+  14   10          wait(Arquero);
+  15   12          i=random(2);
+  16   16          if (i==0) { cout << "Arquero " << ID << " ATAJA el penal" << '\n';}
+  17   26  			else { cout <<"      Arquero " << ID << " se lanza y GOOOL"<< '\n';}
+  18   33          signal(Jugador);
+  19   35      cout << endl;
+  20   36  }
+  21   37  
+  22   37  void main () {
+  23   38  
+  24   38  	cobegin {
+  25   39  
+  26   39  		jugador(1);arquero(1);
+  27   47  		jugador(2);arquero(1);
+  28   55  		jugador(3);arquero(1);
+  29   63  		jugador(4);arquero(1);
+  30   71  		jugador(5);arquero(1);
+  31   79  		
+  32   79  	}
+  33   80  }
