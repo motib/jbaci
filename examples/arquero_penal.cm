@@ -1,0 +1,33 @@
+semaphore Arquero = 0;
+semaphore Jugador = 1;
+
+
+void jugador(int ID){
+	wait(Jugador);
+	cout<<"Jugador " << ID << " ejecita el penal" << endl;
+	signal(Arquero);
+;
+}
+
+void arquero(int ID){
+	int i;
+        wait(Arquero);
+        i=random(2);
+        if (i==0) { cout << "Arquero " << ID << " ATAJA el penal" << '\n';}
+			else { cout <<"      Arquero " << ID << " se lanza y GOOOL"<< '\n';}
+        signal(Jugador);
+    cout << endl;
+}
+
+void main () {
+
+	cobegin {
+
+		jugador(1);arquero(1);
+		jugador(2);arquero(1);
+		jugador(3);arquero(1);
+		jugador(4);arquero(1);
+		jugador(5);arquero(1);
+		
+	}
+}

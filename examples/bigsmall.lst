@@ -1,0 +1,85 @@
+BACI System: BenAri Pascal PCODE Compiler, 12:29  18 Jul 2004
+Source file: D:\Proyectos\jbaci\jbaci\examples\bigsmall.pm  Fri Sep 22 08:52:59 2023
+ line  pc
+   1    0  program Bigsmall;
+   2    0  { Dijkstra's algorithm for exchanging big/small elements of a set. }
+   3    0  
+   4    0  const Last = 20;
+   5    0  type List = array[1..Last] of integer;
+   6    0  
+   7    0  var BigInSmall, SmallInBig: integer;
+   8    0      BinSFree,  SinBFree:    binarysem := 1;
+   9    0      BinSReady, SinBReady:   binarysem := 0;
+  10    0      Display:                binarysem := 1;
+  11    0  
+  12    0  procedure SmallSet;
+  13    0  const NS = 5;
+  14    0  var S: List;
+  15    0      Index: integer;
+  16    0  	procedure GetMax(var A: List; Len: integer; var Max: integer);
+  17    0  	var I: integer;
+  18    0  	begin
+  19    0  		Max := 1; 
+  20    3  		for I := 2 to Len do if A[I] > A[Max] then Max := I;
+  21   21  	end;
+  22   22  begin
+  23   22    S[1] := 4; S[2] := 1; S[3] := 7; S[4] := 5; S[5] := 0;
+  24   47    Wait(Display);
+  25   49    write('Small set (before): '); for Index := 1 to NS do write(S[Index], ' '); writeln;
+  26   63    Signal(Display);
+  27   65    while BigInSmall > SmallInBig do
+  28   69      begin
+  29   69        GetMax(S, NS, Index);
+  30   74        Wait(BinSFree);
+  31   76        BigInSmall := S[Index];
+  32   82        Signal(BinSReady);
+  33   84        Wait(SinBReady);
+  34   86        if BigInSmall > SmallInBig then
+  35   90          S[Index] := SmallInBig;
+  36   95        Signal(SinBFree);
+  37   97      end;
+  38   98    Signal(BinSReady);
+  39  100    Wait(Display);
+  40  102    write('Small set (after): '); for Index := 1 to NS do write(S[Index], ' '); writeln;
+  41  116    Signal(Display);
+  42  118  end;
+  43  119  
+  44  119  procedure BigSet;
+  45  119  const NB = 4;
+  46  119  var B: List;
+  47  119      Index: integer;
+  48  119  	procedure GetMin(var A: List; Len: integer; var Min: integer);
+  49  119  	var I: integer;
+  50  119  	begin
+  51  119  		Min := 1; for I := 2 to Len do if A[I] < A[Min] then Min := I;
+  52  140  	end;
+  53  141  begin
+  54  141    B[1] := 1; B[2] := 3; B[3] := 2; B[4] := 8;
+  55  161    Wait(Display);
+  56  163    write('Big set (before):   '); for Index := 1 to NB do write(B[Index], ' '); writeln;
+  57  177    Signal(Display);
+  58  179    while BigInSmall > SmallInBig do
+  59  183      begin
+  60  183        GetMin(B, NB, Index);
+  61  188        Wait(SinBFree);
+  62  190        SmallInBig := B[Index];
+  63  196        Signal(SinBReady);
+  64  198        Wait(BinSReady);
+  65  200        if BigInSmall > SmallInBig then
+  66  204          B[Index] := BigInSmall;
+  67  209        Signal(BinSFree);
+  68  211      end;
+  69  212    Signal(SinBReady);
+  70  214    Wait(Display);
+  71  216    write('Big set (after):   '); for Index := 1 to NB do write(B[Index], ' '); writeln;
+  72  230    Signal(Display);
+  73  232  end;
+  74  233  
+  75  233  begin
+  76  249    BigInSmall := 20000; SmallInBig := -20000;
+  77  256    cobegin
+  78  257      SmallSet;
+  79  259      BigSet;
+  80  261    coend;
+  81  262  end.
+  82  264  
